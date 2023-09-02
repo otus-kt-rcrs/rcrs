@@ -3,7 +3,7 @@ name: Build and Test Pull Requests
 on:
   pull_request:
     branches:
-      - 'origin/dev/**'
+      - '*'
 
 jobs:
   build-and-test:
