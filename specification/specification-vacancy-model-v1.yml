@@ -1,0 +1,219 @@
+openapi: 3.0.1
+info:
+  title: "Analytic"
+  description: This is a place where calculate analytical information
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/v1
+tags:
+  - name: vc
+    description: Vacancy
+paths:
+  /vc/create:
+    post:
+      tags:
+        - vc
+      summary: Create vacancy
+      operationId: createVacancy
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VcCreatedRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VcCreatedResponse'
+  /vc/search:
+    get:
+      tags:
+        - vc
+      summary: Search vacancies
+      operationId: searchVacancies
+      requestBody:
+        description: Request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VcSearchRequest'
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VcSearchResponse'
+components:
+  schemas:
+    IRequest:
+      type: object
+      description: Базовый интерфейс для всех запросов
+      properties:
+        requestType:
+          type: string
+          description: Поле-дескриминатор для вычисления типа запроса
+          example: create
+        requestId:
+          type: string
+          description: Идентификатор запроса для отладки
+      discriminator:
+        propertyName: requestType
+        mapping:
+          create: '#/components/schemas/VcCreatedRequest'
+          read: '#/components/schemas/VcSearchRequest'
+
+    IResponse:
+      type: object
+      description: Базовый интерфейс для всех ответов
+      properties:
+        responseType:
+          type: string
+          description: Поле-дескриминатор для вычисления типа запроса
+          example: create
+        requestId:
+          type: string
+          description: Идентификатор запроса для отладки
+        result:
+          $ref: '#/components/schemas/ResponseResult'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+
+      discriminator:
+        propertyName: responseType
+        mapping:
+          create: '#/components/schemas/VcCreateResponse'
+          read:   '#/components/schemas/VcReadResponse'
+          init: '#/components/schemas/VcInitResponse'
+
+    ResponseResult:
+      type: string
+      enum:
+        - success
+        - error
+    VcResponseSingle:
+      allOf:
+        - type: object
+          description: Ответ с одним объектом объявления
+          properties:
+            ad:
+              $ref: '#/components/schemas/VcResponseObject'
+
+    BaseAd:
+      type: object
+      description: Объект описывает свойства, одинаковые для create и update
+      properties:
+        title:
+          type: string
+          description: Заголовок вакансии
+        description:
+          type: string
+          description: Описание вакансии
+
+    VcId:
+      type: string
+      description: Идентификатор вакансии
+
+    VcResponseObject:
+      allOf:
+        - $ref: '#/components/schemas/BaseAd'
+        - type: object
+          description: Объект, который возвращается в ответе бэкенда
+          properties:
+            id:
+              $ref: '#/components/schemas/VcId'
+            lock:
+              $ref: '#/components/schemas/VcLock'
+            permissions:
+              type: array
+              uniqueItems: true
+              items:
+                $ref: '#/components/schemas/AdPermissions'
+    AdPermissions:
+      type: string
+      description: Доступы для клиента для операций над вакансиями
+      enum:
+        - read
+        - search
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        group:
+          type: string
+        field:
+          type: string
+        message:
+          type: string
+    VcLock:
+      type: string
+      description: Версия оптимистичной блокировки
+
+    VcCreatedRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - type: object
+          properties:
+            ad:
+              $ref: '#/components/schemas/VcCreateObject'
+    VcSearchRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - type: object
+
+    VcCreatedResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - type: object
+    VcCreateObject:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        location:
+          type: string
+    VcSearchResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vacancy'
+    VcCreateResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/VcResponseSingle'
+    VcReadResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/VcResponseSingle'
+    VcInitResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+    Vacancy:
+      type: object
+      properties:
+        id:
+          type: object
+        name:
+          type: string
+        description:
+          type: string
+        location:
+          type: string

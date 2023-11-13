@@ -1,19 +1,24 @@
+package org.otus
+
+import ru.rcrs.api.v1.models.VcCreatedRequest
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
-import org.otus.JacksonApiMapper
-import ru.rcrs.api.v1.models.UsCreateRequest
+import ru.rcrs.api.v1.models.VcCreateObject
 
 
 class RequestSerializationTest {
 
     private val jacksonApiMapper = JacksonApiMapper()
-    private val request = UsCreateRequest(
+    private val request = VcCreatedRequest(
         requestId = "1",
         requestType = "POST",
-        name = "test",
-        email = "test@mail.ru",
-        age = 27
+        ad = VcCreateObject (
+            id = "",
+            name = "test",
+            description = "desc",
+            location = "Moscow"
+        )
     )
 
     @Test
@@ -21,8 +26,10 @@ class RequestSerializationTest {
         val json = jacksonApiMapper.apiV1RequestSerialize(request)
         assertContains(json, Regex("\"requestType\":\"POST\""))
         assertContains(json, Regex("\"requestId\":\"1\""))
+        assertContains(json, Regex("\"id\":\"\""))
         assertContains(json, Regex("\"name\":\"test\""))
-        assertContains(json, Regex("\"email\":\"test@mail.ru\""))
+        assertContains(json, Regex("\"description\":\"desc\""))
+        assertContains(json, Regex("\"location\":\"Moscow\""))
     }
 
     @Test
