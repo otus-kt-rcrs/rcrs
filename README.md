@@ -5,7 +5,7 @@ This is project for otus
 Customer Relationship Management is a system for an analytical platform where information is collected and then analyzed, namely, information is collected from sources about interested users in certain services. The purpose is to offer users more favorable conditions.
 
 ### mvp 
-![mvp_shop_on.png](docs%2Fimgs%2Fmvp_shop_on.png)
+![crm-mvp.png](docs%2Fimgs%2Fcrm-mvp.png)
 
 As part of this architecture, a user-profile-service will be implemented where user analytics will be performed.
 
